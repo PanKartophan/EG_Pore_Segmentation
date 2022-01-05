@@ -1,0 +1,7 @@
+torchvision
+pretrainedmodels
+efficientnet-pytorch
+timm
+
+tqdm
+pillow
