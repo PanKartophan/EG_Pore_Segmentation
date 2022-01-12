@@ -115,11 +115,12 @@ Model train, validation and test
 <p align="justify">
 Our work was performed in Google Colab environment with the use of PyTorch framework based on the Torch library and the Python programming language. To segment SEM images of inner EG-T pore structure we selected a FPN model realized in a Segmentation Models library. We chose efficiennet-b4 encoder developed by Google due to good combination of accuracy, required memory and, as a consequence, satisfactory training time. On the stage of model training and validation we set maximum possible batch size equal to 11, applied the Adam optimization algorithm with learning rate 0.001 and used sigmoidal function on the last layer of neural network. The training/validation process was going on for 100 epochs. Dice’s coefficient was applied as loss function to calculate segmentation model error using ground-truth and predicted binary masks. Additionally we used intersection over union (IoU) metric to evaluate the accuracy of the model on the dataset. One can see the evolution of mentioned metrics on the figure 1. It can be noted that metrics reach almost a plateau. Thus, increasing of the epoch number will not improve the model performance significantly. Additionally, it can be noticed that the model overfitting does not occur.
 </p>
-
-![Fig. 1, left](images/1_1.jpg) ![Fig. 1, right](images/1_2.jpg)
-
+<p align="center">
+<img src="images/1.jpg" height="500" />
+</p>
+<p align="center">
 Fig. 1. Evolution of Dice loss function and IoU metric during train/validation process.
-
+</p>
 <p align="justify">
 On the test stage model demonstrated Dice’s loss and IoU metric equal to 0.0661 and 0.877, respectively.
 </p>
@@ -132,6 +133,11 @@ Watershed algorithm post-processing
 </h3>
 <p align="justify">
 To solve abovementioned problem of pore walls’ gaps we applied the watershed algorithm to binary mask predicted by the deep neural network. To perform this algorithm it should mark sure background and foreground. We set pore walls, i.e. white regions of binary mask, as background markers. To create foreground markers an Euclidian distance map was computed. On the map a value of each pixel is a measure of distance between corresponding pixel and background of the binary mask. Then we made thresholding of each region of the map, corresponding to closed areas, using an optimized thresholding parameter (see below) with the aim of extracting binary mask’s regions belonging to pores with a high probability. Finally, using the watershed algorithm, realized in the OpenCV library, and obtained markers, we processed predicted binary mask. One can note significant decrease of pore walls’ gaps on the figure 2 (right bottom).
+</p>
+<p align="center">
+<img src="images/2.jpg" height="500" />
+</p>
+<p align="center">
 Fig. 2. Original pore structure SEM image, ground-truth mask, predicted mask and post-processed predicted mask (from left top to right bottom). 
 </p>
 
@@ -150,10 +156,20 @@ Results and discussion
 </h2>
 <p align="justify">
 We measured pore cross-section areas for not previously used 10 (for each stage number) EPG-T samples using ground-truth binary masks of SEM images by means of ImageJ software. As earlier we used scale information in hdr-files to convert squared pixels into squared microns. Then, we plotted frequency histograms with bin width of 1 μm<sup>2</sup> in the range from 5 μm<sup>2</sup> to the maximum existing value. We set the lower limit of the histograms to exclude very small pores which may be the result of inaccurate image processing. Finally, we transformed frequency histograms to the cumulative ones to make the difference between samples more clear (fig. 3).
+</p>
+<p align="center">
+<img src="images/3.jpg" height="500" />
+</p>
+<p align="center">
 Fig. 3. Cumulative frequency distributions of EPG-T-2 – EPG-T-5 samples obtained in a manual manner. Numbers in the sample labels equal to stage number of corresponding GICs.
 </p>
 <p align="justify">
 To do the same thing by means of the automatic procedure based on the neural network it should predict binary masks with the size of initial SEM images. But our model can only work with images with the size of 512x512 pixels. Therefore, we cut each SEM image into pieces of shape 512x512 pixels, made prediction and processing by the watershed algorithm and pasted resulting binary masks together to get the masks of the same size as the original one. If size of the SEM image along any axis was not a multiple of 512, we preliminarily padded it to the size of 512 pixels by means of white pixels with a 255 value (fig. 4). As in the case of figure 3, to plot each cumulative curve on the figure 4 we took not previously used SEM images of inner pore structure of 10 EG-T particles.
+</p>
+<p align="center">
+<img src="images/4.jpg" height="500" />
+</p>
+<p align="center">
 Fig. 4. Cumulative frequency distributions of EPG-T-2 – EPG-T-5 (left) and EFG-T-2 – EFG-T-5 (right) samples obtained using the neural network. Numbers in the sample labels equal to stage number of corresponding GICs.
 </p>
 <p align="justify">
