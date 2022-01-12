@@ -8,10 +8,8 @@ pillow
 
 segmentation_models_pytorch
 albumentations
-os
 numpy
 torch
-random
 sys
 cv2
 skimage

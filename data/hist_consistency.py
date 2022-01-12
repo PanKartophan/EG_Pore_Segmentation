@@ -30,7 +30,8 @@ def postproc(mask, sure_fg_threshold=0.5):
     # sure background marker for watershed algorithm
     sure_bg = mask_postproc
 
-    # construct sure foreground marker for watershed algorithm using Euclidean distance transform followed by thresholding
+    # construct sure foreground marker for watershed algorithm
+    # using Euclidean distance transform followed by thresholding
     dist_transform = distanceTransform(mask_postproc, DIST_L2, 5)
     _, sure_fg = threshold(dist_transform, sure_fg_threshold * dist_transform.max(), 255, 0)
     sure_fg = np.uint8(sure_fg)

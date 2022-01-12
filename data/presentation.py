@@ -2,16 +2,11 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
-from torch.utils.data import DataLoader, Dataset
-import torch.nn as nn
-import torchvision 
-import random
 import segmentation_models_pytorch as smp
-import sys
 import hist_consistency
 
 
-class PSD():
+class PSD:
     """
     Class used to predict binary masks of images, measure pore areas, export them into csv-file and plot histogram
 
@@ -187,30 +182,30 @@ class PSD():
                 line = hdr.readline().strip()
                 items = line.split('=')
                 tag = items[0]
-            return ((float(items[1]) * 1000000) ** 2)
+            return (float(items[1]) * 1000000) ** 2
 
 
 #Define encoder, activation function, device and path to model weights
 encoder = 'efficientnet-b4'
 activation = 'sigmoid'
-device = "cuda"
-modelpath = '/content/drive/MyDrive/project/best_model_FPN_efficientnet-b4_ep100_bs11_wc_wlrsch_lr0_001_imagenet.pth'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+modelpath = 'model.pth'
 
 #Define model and load model weights
 model = smp.FPN(encoder_name=encoder, activation=activation, encoder_weights=None, encoder_depth=5, in_channels=1)
-model.load_state_dict(torch.load(modelpath))
-model.to(device)
+model.load_state_dict(torch.load(modelpath, map_location=torch.device('cpu')))
+#model.to(device)
 
 
-#Define pathes to images and corresponding hdr-files
-path_images = '/content/drive/MyDrive/project/PNG-x/PNG-5/images/'
-path_hdrs = '/content/drive/MyDrive/project/PNG-x/PNG-5/hdrs/'
+# Define pathes to images and corresponding hdr-files
+path_images = 'test/images/'
+path_hdrs = 'test/hdrs/'
 #Initialize object of PSD-class and check out dataset size.
 ex = PSD(path_images, path_hdrs, model)
 
 
 #Measure pore areas
-ex.area_all();
+ex.area_all()
 
 
 #Plot histogram of pore areas
