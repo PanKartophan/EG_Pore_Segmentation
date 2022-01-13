@@ -1,4 +1,4 @@
-from cv2 import distanceTransform, threshold, subtract, connectedComponents, watershed, DIST_L2, erode
+from cv2 import distanceTransform, threshold, subtract, connectedComponents, watershed, DIST_L2
 import numpy as np
 from skimage.measure import regionprops, label
 import matplotlib.pyplot as plt
@@ -84,74 +84,6 @@ def postproc2(mask, sure_fg_threshold=0.5):
         dist_transform = distanceTransform(mask_postproc_piece, DIST_L2, 5)
         _, sure_fg_piece = threshold(dist_transform, sure_fg_threshold * dist_transform.max(), 255, 0)
         sure_fg_piece = sure_fg_piece.astype('uint8')
-        sure_fg += sure_fg_piece
-
-    # construct final markers for watershed algorithm
-    unknown = subtract(sure_bg, sure_fg)
-    _, markers = connectedComponents(sure_fg)
-    markers = markers + 10
-    markers[unknown == 255] = 0
-    # apply watershed algorithm
-    markers = watershed(mask_postproc_3d, markers)
-    mask_postproc_3d[markers == -1] = [0, 255, 255]
-
-    # resulting binary mask corresponds to the first channel
-    # convert it to input binary mask's style
-    return mask_postproc_3d[:, :, 0] + 1
-
-
-def postproc3(mask, coarse_threshold=0.5, fine_threshold=0.2):
-    """
-    Isolates pores in the binary mask from the background (pore walls, etc.) using watershed algorithm.
-
-    Parameters
-    ----------
-    mask: ndarray(dtype='uint8') of shape (H, W).
-        Binary mask with black pores (pixel=0) and white background (pixel=1).
-    sure_fg_threshold: float, optional, default=0.17.
-        Threshold value is used to construct sure foreground marker for watershed algorithm.
-        Applied to INDIVIDUAL distance map of each connected area (pore) of input binary mask.
-
-    Returns
-    -------
-    ndarray(dtype='uint8') of shape (H, W).
-        Result of watershed algorithm applied to input binary mask.
-    """
-
-    fine_kernel_1 = np.array([[0, 1, 0],
-                              [1, 0, 1],
-                              [0, 1, 0]], dtype='uint8')
-    fine_kernel_2 = np.array([[1, 0, 1],
-                              [0, 1, 0],
-                              [1, 0, 1]], dtype='uint8')
-    coarse_kernel_1 = np.array([[0, 0, 0, 0, 0, 0, 0],
-                                [0, 0, 1, 1, 1, 0, 0],
-                                [0, 1, 1, 1, 1, 1, 0],
-                                [1, 1, 1, 1, 1, 1, 1],
-                                [0, 1, 1, 1, 1, 1, 0],
-                                [0, 0, 1, 1, 1, 0, 0],
-                                [0, 0, 0, 0, 0, 0, 0]], dtype='uint8')
-    coarse_kernel_2 = coarse_kernel_1.T
-
-    # invert input binary mask
-    mask_postproc = np.invert(mask.astype('bool')).astype('uint8') * 255
-    # 3D-version of input 2D-binary mask for watershed function
-    mask_postproc_3d = np.stack([mask_postproc] * 3, axis=2)
-    # sure background marker for watershed algorithm
-    sure_bg = mask_postproc
-
-    # construct sure foreground marker for watershed algorithm using Euclidean distance transform
-    # followed by thresholding applied to each connected area (pore) of input binary mask
-    sure_fg = np.zeros_like(mask_postproc)
-    mask_postproc_labeled = label(mask_postproc, connectivity=1, background=mask_postproc.min().item())
-    for i in range(1, mask_postproc_labeled.max() + 1):
-        mask_postproc_piece = (mask_postproc_labeled == i).astype('uint8')
-        area = mask_postproc_piece.sum()
-        while mask_postproc_piece.sum() > area * coarse_threshold:
-            mask_postproc_piece = erode(mask_postproc_piece, coarse_kernel_1)
-        while mask_postproc_piece.sum() > area * fine_threshold:
-            mask_postproc_piece = erode(mask_postproc_piece, fine_kernel_1)
-        sure_fg_piece = mask_postproc_piece * 255
         sure_fg += sure_fg_piece
 
     # construct final markers for watershed algorithm

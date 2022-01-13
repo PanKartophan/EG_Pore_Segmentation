@@ -1,6 +1,4 @@
 torchvision
-pretrainedmodels
-efficientnet-pytorch
 timm
 
 tqdm
@@ -10,7 +8,6 @@ segmentation_models_pytorch
 albumentations
 numpy
 torch
-sys
 cv2
 skimage
 matplotlib

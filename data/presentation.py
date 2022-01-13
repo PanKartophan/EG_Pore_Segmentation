@@ -185,36 +185,32 @@ class PSD:
             return (float(items[1]) * 1000000) ** 2
 
 
-#Define encoder, activation function, device and path to model weights
+# Define encoder, activation function, device and path to model weights
 encoder = 'efficientnet-b4'
 activation = 'sigmoid'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 modelpath = 'model.pth'
 
-#Define model and load model weights
+# Define model and load model weights
 model = smp.FPN(encoder_name=encoder, activation=activation, encoder_weights=None, encoder_depth=5, in_channels=1)
 model.load_state_dict(torch.load(modelpath, map_location=torch.device('cpu')))
-#model.to(device)
+model.to(device)
 
 
 # Define pathes to images and corresponding hdr-files
 path_images = 'test/images/'
 path_hdrs = 'test/hdrs/'
-#Initialize object of PSD-class and check out dataset size.
+# Initialize object of PSD-class and check out dataset size.
 ex = PSD(path_images, path_hdrs, model)
 
 
-#Measure pore areas
+# Measure pore areas
 ex.area_all()
 
 
-#Plot histogram of pore areas
+# Plot histogram of pore areas
 ex.hist(100, 0, 100)
 
 
-#Save pore areas to csv-file
+# Save pore areas to csv-file
 ex.save()
-
-
-
-
