@@ -193,7 +193,7 @@ modelpath = 'model.pth'
 
 # Define model and load model weights
 model = smp.FPN(encoder_name=encoder, activation=activation, encoder_weights=None, encoder_depth=5, in_channels=1)
-model.load_state_dict(torch.load(modelpath, map_location=torch.device('cpu')))
+model.load_state_dict(torch.load(modelpath, map_location=torch.device(device)))
 model.to(device)
 
 
